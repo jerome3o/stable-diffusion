@@ -1,5 +1,9 @@
+scratch/
 venv/
 *.pyc
 *.egg-info
 outputs/
 *.ckpt
+.xkm
+.ipynb_checkpoints/
+src/
