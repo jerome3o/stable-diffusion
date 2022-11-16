@@ -302,4 +302,3 @@ if __name__ == "__main__":
     vae = vae.to(torch_device)
     text_encoder = text_encoder.to(torch_device)
     unet = unet.to(torch_device)
-:
