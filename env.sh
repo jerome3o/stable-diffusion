@@ -1,0 +1,2 @@
+export AMDGPU_TARGETS="gfx1030"
+export PYTHONPATH=.
