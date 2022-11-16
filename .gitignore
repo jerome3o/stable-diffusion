@@ -7,3 +7,4 @@ outputs/
 .xkm
 .ipynb_checkpoints/
 src/
+.env
