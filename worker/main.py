@@ -323,5 +323,5 @@ if __name__ == "__main__":
     output_dir = Path(output_dir)
     current_output = get_output_dir(output_dir / "tests")
 
-    step = generate_single_step("frog as a horse")
-    generate_images([step, step], current_output)
+    step = generate_single_step("a penguin with three eyes")
+    generate_images([step], current_output)
