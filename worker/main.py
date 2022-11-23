@@ -249,8 +249,9 @@ def generate_images(
     num_inference_steps: int = _DEFAULT_NUM_INFERENCE_STEPS,
     guidance_scale: float = _DEFAULT_GUIDANCE_SCALE,
     batch_size: int = _DEFAULT_BATCH_SIZE,
+    scout_steps: int = 20,
 ):
-
+    output_dir = Path(output_dir)
     uncond_embeddings, _ = prep_text([""], tokenizer)
 
     all_prompts = list({prompt for step in steps for prompt, _ in step.prompts})
@@ -258,11 +259,15 @@ def generate_images(
         prompt: prep_text([prompt], tokenizer)[0] for prompt in list(set(all_prompts))
     }
     enumerated_steps = list(enumerate(steps))
-    scout_step = len(enumerated_steps) // 20
+    if len(steps) > scout_steps:
+        scout_step = len(enumerated_steps) // scout_steps
 
-    ordered_steps = enumerated_steps[::scout_step] + [
-        s for s in enumerated_steps if (s[0] % scout_step) != 0
-    ]
+        ordered_steps = enumerated_steps[::scout_step] + [
+            s for s in enumerated_steps if (s[0] % scout_step) != 0
+        ]
+    else:
+        ordered_steps = enumerated_steps 
+
 
     for c, step in tqdm(ordered_steps):
 
@@ -288,6 +293,17 @@ def generate_images(
         )
         im.save(im_file)
 
+def generate_single_step(prompt: str, seed: int = 5):
+    return _Step(prompts=[(prompt, 1)], latents=[(seed, 1)])
+
+
+def get_output_dir(base: Path):
+    base.mkdir(exist_ok=True, parents=True)
+    index = max(map(lambda p: int(p.stem), base.glob("[0-9]*")), default=0) + 1
+    interp_output = base / str(index)
+    interp_output.mkdir()
+    return interp_output
+
 
 if __name__ == "__main__":
     import logging
@@ -302,3 +318,10 @@ if __name__ == "__main__":
     vae = vae.to(torch_device)
     text_encoder = text_encoder.to(torch_device)
     unet = unet.to(torch_device)
+    
+    output_dir = "outputs/"
+    output_dir = Path(output_dir)
+    current_output = get_output_dir(output_dir / "tests")
+
+    step = generate_single_step("frog as a horse")
+    generate_images([step, step], current_output)
